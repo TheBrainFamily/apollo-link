@@ -52,6 +52,19 @@ export class SchemaLink extends ApolloLink {
         ),
       )
         .then(data => {
+          if (data.errors && data.errors.length) {
+            data.errors.forEach(error => {
+              if (error.stack) {
+                error.message = `${error.message}\n${error.stack}`;
+                Object.defineProperties(error, {
+                  stack: {
+                    value: error.stack,
+                    enumerable: true,
+                  },
+                });
+              }
+            });
+          }
           if (!observer.closed) {
             observer.next(data);
             observer.complete();
